@@ -98,16 +98,6 @@ void WebProcessPool::platformInitializeWebProcess(WebProcessCreationParameters& 
         parameters.urlSchemesRegisteredAsLocal.append("resource");
     }
 
-    if (!usesNetworkProcess()) {
-        parameters.urlSchemesRegisteredForCustomProtocols = supplement<WebSoupCustomProtocolRequestManager>()->registeredSchemesForCustomProtocols();
-
-        supplement<WebCookieManagerProxy>()->getCookiePersistentStorage(parameters.cookiePersistentStoragePath, parameters.cookiePersistentStorageType);
-        parameters.cookieAcceptPolicy = m_initialHTTPCookieAcceptPolicy;
-
-        parameters.ignoreTLSErrors = m_ignoreTLSErrors;
-        parameters.diskCacheDirectory = m_configuration->diskCacheDirectory();
-    }
-
     parameters.memoryCacheDisabled = m_memoryCacheDisabled || cacheModel() == CacheModelDocumentViewer;
 }
 
@@ -150,7 +140,7 @@ void WebProcessPool::setIgnoreTLSErrors(bool ignoreTLSErrors)
 {
     m_ignoreTLSErrors = ignoreTLSErrors;
 #if ENABLE(NETWORK_PROCESS)
-    if (usesNetworkProcess() && networkProcess()) {
+    if (networkProcess()) {
         networkProcess()->send(Messages::NetworkProcess::SetIgnoreTLSErrors(m_ignoreTLSErrors), 0);
         return;
     }
