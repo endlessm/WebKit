@@ -1,3 +1,26 @@
+webkit2gtk (1:2.10.6-1endless1) eos; urgency=medium
+
+  * Updated to the new upstream release.
+  * Adding the epoch number introduced in 1:2.6.2.
+  * Undo the "Migrate to automatic -dbgsym packages" change:
+    + We won't use automatic debug packages downstream for now, and also
+      we want to be able to disable -dbg ones as we used to do.
+    + Besides, this helps us avoid bumping a newer version of debhelper
+  * debian/gir1.2-javascriptcoregtk-4.0.install,
+    debian/gir1.2-webkit2-4.0.install:
+    + Put .typelib files in /usr/lib/girepository-1.0
+      rather than /usr/lib/<arch>/girepository-1.0.
+      This breaks multi-arch compliance, but not needed for Endless.
+  * debian/rules:
+    + Bring the EXTRA_DH_ARGUMENTS back, to properly deal with -dbg packages again.
+    + Replace --ddeb-migration in dh_strip with --dbg-package again.
+  * debian/control:
+    + Bring back the entries for libjavascriptcoregtk-4.0-18-dbg and
+      libwebkit2gtk-4.0-37-dbg, since we won't have -dbgsym packages yet.
+    + Don't require debhelper >= 9.20151219 (just debhelper >= 9).
+
+ -- Mario Sanchez Prada <mario@endlessm.com>  Wed, 17 Feb 2016 13:02:58 +0000
+
 webkit2gtk (2.10.6-1) unstable; urgency=medium
 
   * New upstream release.
