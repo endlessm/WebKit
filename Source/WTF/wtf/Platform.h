@@ -344,6 +344,12 @@
 #define WTF_CPU_NEEDS_ALIGNED_ACCESS 1
 #endif
 
+/* CPU(M68K) - m68k */
+#if defined(__mc68000__)
+#define WTF_CPU_M68K 1
+#define WTF_CPU_BIG_ENDIAN 1
+#endif
+
 /* ==== OS() - underlying operating system; only to be used for mandated low-level services like 
    virtual memory, not to choose a GUI toolkit ==== */
 
