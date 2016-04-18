@@ -45,10 +45,10 @@ Build-Depends: gawk,
                libgl1-mesa-dev [!armel !armhf !arm64],
                libgles2-mesa-dev [armel armhf arm64]
 Build-Conflicts: gir-repository-dev
-Standards-Version: 3.9.6
+Standards-Version: 3.9.7
 Homepage: http://webkitgtk.org/
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-webkit/webkit.git
-Vcs-Git: git://anonscm.debian.org/pkg-webkit/webkit.git
+Vcs-Browser: https://anonscm.debian.org/gitweb/?p=pkg-webkit/webkit.git
+Vcs-Git: https://alioth.debian.org/anonscm/git/pkg-webkit/webkit.git
 
 Package: libjavascriptcoregtk-4.0-18
 Section: libs
