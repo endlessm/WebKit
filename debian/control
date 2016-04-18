@@ -45,10 +45,10 @@ Build-Depends: gawk,
                libgl1-mesa-dev [!armel !armhf !arm64],
                libgles2-mesa-dev [armel armhf arm64]
 Build-Conflicts: gir-repository-dev
-Standards-Version: 3.9.6
+Standards-Version: 3.9.7
 Homepage: http://webkitgtk.org/
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-webkit/webkit.git
-Vcs-Git: git://anonscm.debian.org/pkg-webkit/webkit.git
+Vcs-Browser: https://anonscm.debian.org/gitweb/?p=pkg-webkit/webkit.git
+Vcs-Git: https://alioth.debian.org/anonscm/git/pkg-webkit/webkit.git
 
 Package: libjavascriptcoregtk-4.0-18
 Section: libs
@@ -84,23 +84,6 @@ Description: JavaScript engine library from WebKitGTK+ - development files
  This build comes from the GTK+ port of WebKit (API version 4.0).
  .
  This package contains the development files.
-
-Package: libjavascriptcoregtk-4.0-18-dbg
-Section: debug
-Priority: extra
-Architecture: any
-Multi-Arch: same
-Depends: libjavascriptcoregtk-4.0-18 (= ${binary:Version}),
-         ${misc:Depends}
-Description: JavaScript engine library from WebKitGTK+ - debugging symbols
- JavaScriptCore is the JavaScript engine used in WebKit. It consists
- of the following building blocks: lexer, parser, start-up interpreter
- (LLInt), baseline JIT, a low-latency optimizing JIT (DFG), and a
- high-throughput optimizing JIT (FTL).
- .
- This build comes from the GTK+ port of WebKit (API version 4.0).
- .
- This package contains the debugging symbols.
 
 Package: libjavascriptcoregtk-4.0-bin
 Section: interpreters
@@ -147,8 +130,8 @@ Depends: libjavascriptcoregtk-4.0-18 (= ${binary:Version}),
          ${misc:Depends}
 Recommends: gstreamer1.0-plugins-base,
             gstreamer1.0-plugins-good,
+            libwebkit2gtk-4.0-37-gtk2,
             ${gst:Recommends}
-Suggests: libwebkit2gtk-4.0-37-gtk2
 Description: Web content engine library for GTK+
  WebKit is a web content engine, derived from KHTML and KJS from KDE, and
  used primarily in Apple's Safari browser.  It is made to be embedded in
@@ -213,30 +196,6 @@ Description: Web content engine library for GTK+ - documentation
  This build comes from the GTK+ port of WebKit (API version 4.0).
  .
  This package contains the documentation.
-
-Package: libwebkit2gtk-4.0-37-dbg
-Section: debug
-Priority: extra
-Architecture: any
-Multi-Arch: same
-Depends: libwebkit2gtk-4.0-37 (= ${binary:Version}),
-         libjavascriptcoregtk-4.0-18-dbg (= ${binary:Version}),
-         ${misc:Depends}
-Description: Web content engine library for GTK+ - debugging symbols
- WebKit is a web content engine, derived from KHTML and KJS from KDE, and
- used primarily in Apple's Safari browser.  It is made to be embedded in
- other applications, such as mail readers, or web browsers.
- .
- It is able to display content such as HTML, SVG, XML, and others. It also
- supports DOM, XMLHttpRequest, XSLT, CSS, JavaScript/ECMAScript and more.
- .
- WebKit2 is an API layer for WebKit designed from the ground up to
- support a split process model, where the web content lives in a
- separate process from the application UI.
- .
- This build comes from the GTK+ port of WebKit (API version 4.0).
- .
- This package provides the debugging symbols.
 
 Package: gir1.2-webkit2-4.0
 Section: introspection

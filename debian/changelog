@@ -1,25 +1,40 @@
-webkit2gtk (1:2.10.6-1endless1) eos; urgency=medium
+webkit2gtk (2.10.9-1) unstable; urgency=medium
 
-  * Updated to the new upstream release.
-  * Adding the epoch number introduced in 1:2.6.2.
-  * Undo the "Migrate to automatic -dbgsym packages" change:
-    + We won't use automatic debug packages downstream for now, and also
-      we want to be able to disable -dbg ones as we used to do.
-    + Besides, this helps us avoid bumping a newer version of debhelper
-  * debian/gir1.2-javascriptcoregtk-4.0.install,
-    debian/gir1.2-webkit2-4.0.install:
-    + Put .typelib files in /usr/lib/girepository-1.0
-      rather than /usr/lib/<arch>/girepository-1.0.
-      This breaks multi-arch compliance, but not needed for Endless.
+  * New upstream release.
+
+ -- Alberto Garcia <berto@igalia.com>  Fri, 18 Mar 2016 12:35:25 +0200
+
+webkit2gtk (2.10.8-1) unstable; urgency=high
+
+  * New upstream release. This fixes CVE-2016-1726 (Closes: #802380).
+  * Allow building the package with debhelper < 9.20151219. This won't
+    produce any debug packages (since they are automatically generated
+    now), but it can be useful for backports.
+    + debian/control:
+      - Revert build dependency on debhelper back to >= 9.
+    + debian/rules:
+      - Don't make dh_strip fail if it doesn't support --ddeb-migration.
   * debian/rules:
-    + Bring the EXTRA_DH_ARGUMENTS back, to properly deal with -dbg packages again.
-    + Replace --ddeb-migration in dh_strip with --dbg-package again.
+    + The list of architectures in which the debug packages are causing
+      problems continues to grow, so let's try the opposite approach: we
+      build by default using -g1 except in the cases where we know that
+      -g works fine (amd64, ppc64, ppc64el).
+    + Enable all hardening flags.
+  * debian/patches/fix-ftbfs-m68k.patch:
+    + Enclose the changes to the compile assertions inside an #ifdef block
+      so they only apply to m68k.
+  * debian/patches/fix-ftbfs-alpha.patch:
+    + Fix FTBFS in alpha (Closes: #815124).
+  * debian/patches/fix-ftbfs-sparc64.patch:
+    + Add patch metadata.
+  * debian/source/lintian-overrides:
+    + Update overrides so the latest lintian doesn't give more
+      source-is-missing false positives.
   * debian/control:
-    + Bring back the entries for libjavascriptcoregtk-4.0-18-dbg and
-      libwebkit2gtk-4.0-37-dbg, since we won't have -dbgsym packages yet.
-    + Don't require debhelper >= 9.20151219 (just debhelper >= 9).
+    + Bump Standards-Version to 3.9.7; no changes needed.
+    + Use secure URIs for the Vcs-* fields.
 
- -- Mario Sanchez Prada <mario@endlessm.com>  Wed, 17 Feb 2016 13:02:58 +0000
+ -- Alberto Garcia <berto@igalia.com>  Sat, 12 Mar 2016 00:07:55 +0200
 
 webkit2gtk (2.10.6-1) unstable; urgency=medium
 

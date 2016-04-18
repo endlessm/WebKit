@@ -1,5 +1,7 @@
 #!/usr/bin/make -f
 
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
 DEB_BUILD_ARCH     ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH)
 DEB_HOST_ARCH_BITS ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_BITS)
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
@@ -8,7 +10,8 @@ CPPFLAGS = $(shell dpkg-buildflags --get CPPFLAGS) -Wall
 CFLAGS = $(shell dpkg-buildflags --get CFLAGS)
 LDFLAGS = $(shell dpkg-buildflags --get LDFLAGS) -Wl,--as-needed
 
-EXTRA_DH_ARGUMENTS =
+DEBHELPER_VERSION = $(shell dpkg-query -W -f='$${source:Version}' debhelper)
+
 EXTRA_CMAKE_ARGUMENTS =
 
 # Sacrifice speed in order to make it more likely resource limits
@@ -25,15 +28,10 @@ ifeq ($(DEB_BUILD_ARCH),arm64)
 	EXTRA_CMAKE_ARGUMENTS += -DUSE_LD_GOLD=OFF
 endif
 
-# Disable debugging symbols on these arches.
-ifneq (,$(filter $(DEB_BUILD_ARCH),hurd-i386 ia64 kfreebsd-i386 kfreebsd-amd64 mips mipsel powerpc powerpcspe s390 s390x sparc armel armhf hppa arm64 i386 amd64))
-	CFLAGS := $(CFLAGS:-g=)
-	EXTRA_DH_ARGUMENTS += -Nlibwebkit2gtk-4.0-37-dbg -Nlibjavascriptcoregtk-4.0-18-dbg
-endif
-
-# The size of the i386 shared library is causing problems, so let's use -g1
-# See https://bugs.webkit.org/show_bug.cgi?id=140176
-ifeq ($(DEB_BUILD_ARCH),i386)
+# The debug packages produced by webkit are huge and cause problems in
+# most buildds, so use -g1 in all architectures except the ones that
+# are known to work fine
+ifeq (,$(filter $(DEB_BUILD_ARCH),amd64 ppc64 ppc64el))
 	CFLAGS := $(CFLAGS:-g=-g1)
 endif
 
@@ -61,7 +59,7 @@ else
 endif
 
 %:
-	dh $@ --parallel $(EXTRA_DH_ARGUMENTS)
+	dh $@ --parallel
 
 override_dh_auto_configure:
 	CFLAGS="$(CFLAGS) $(CPPFLAGS)" \
@@ -77,23 +75,22 @@ override_dh_auto_configure:
 	   $(EXTRA_CMAKE_ARGUMENTS)
 
 override_dh_strip:
-	dh_strip -plibwebkit2gtk-4.0-37 --dbg-package=libwebkit2gtk-4.0-37-dbg $(EXTRA_DH_ARGUMENTS)
-	dh_strip -plibjavascriptcoregtk-4.0-18 --dbg-package=libjavascriptcoregtk-4.0-18-dbg $(EXTRA_DH_ARGUMENTS)
-	dh_strip $(EXTRA_DH_ARGUMENTS)
+	if dpkg --compare-versions $(DEBHELPER_VERSION) ge 9.20151219; then \
+		dh_strip -plibwebkit2gtk-4.0-37 --ddeb-migration='libwebkit2gtk-4.0-37-dbg (<< 2.10.5-1~)' ; \
+		dh_strip -plibjavascriptcoregtk-4.0-18 --ddeb-migration='libjavascriptcoregtk-4.0-18-dbg (<< 2.10.5-1~)' ; \
+	fi
+	dh_strip
 
 override_dh_makeshlibs:
-	dh_makeshlibs -plibwebkit2gtk-4.0-37 -Xinjected-bundle $(EXTRA_DH_ARGUMENTS)
-	dh_makeshlibs -plibjavascriptcoregtk-4.0-18 $(EXTRA_DH_ARGUMENTS)
+	dh_makeshlibs -plibwebkit2gtk-4.0-37 -Xinjected-bundle
+	dh_makeshlibs -plibjavascriptcoregtk-4.0-18
 
 override_dh_shlibdeps:
-	dh_shlibdeps $(EXTRA_DH_ARGUMENTS)
-	dh_girepository $(EXTRA_DH_ARGUMENTS)
-
-override_dh_clean:
-	dh_clean $(EXTRA_DH_ARGUMENTS)
+	dh_shlibdeps
+	dh_girepository
 
 override_dh_builddeb:
 	DEB_BUILD_OPTIONS="$(filter-out parallel=%,$(DEB_BUILD_OPTIONS))" \
-		dh_builddeb $(EXTRA_DH_ARGUMENTS)
+		dh_builddeb
 
 override_dh_auto_test:
