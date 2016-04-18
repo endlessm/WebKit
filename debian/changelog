@@ -1,3 +1,25 @@
+webkit2gtk (1:2.10.9-0) eos; urgency=medium
+
+  * Updated to the new upstream release.
+  * Dropped downstream changes previously applied on top of 1:2.10.6
+    + debian/gir1.2-javascriptcoregtk-4.0.install,
+      debian/gir1.2-webkit2-4.0.install:
+      - Stop putting .typelib files in /usr/lib/girepository-1.0 ()rather than
+        in /usr/lib/<arch>/girepository-1.0, it's no longer needed.
+    + debian/rules:
+      - Don't revert to the old method of creating debug packages, now that
+        we have a new enough version of debhelper (>= 9.20151219).
+      - Don't bother disabling debug symbols for i386, amd64 and armhf since it
+        is not a problem anymore (so we should have proper debug packages now).
+    + debian/control:
+      - Don't revert to the old -dbg packages, now that we have a newer debhelper.
+  * debian/changelog:
+    + Adding the epoch number introduced in 1:2.6.2.
+  * debian/control:
+    + Move libwebkit2gtk-4.0-37-gtk2 from Recommends to Suggests.
+
+ -- Mario Sanchez Prada <mario@endlessm.com>  Mon, 18 Apr 2016 22:32:26 +0100
+
 webkit2gtk (2.10.9-1) unstable; urgency=medium
 
   * New upstream release.
