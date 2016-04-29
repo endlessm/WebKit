@@ -410,7 +410,7 @@ static AtkAttributeSet* webkitAccessibleGetAttributes(AtkObject* object)
     if (element) {
         String tagName = element->tagName();
         if (!tagName.isEmpty())
-            attributeSet = addToAtkAttributeSet(attributeSet, "tag", tagName.lower().utf8().data());
+            attributeSet = addToAtkAttributeSet(attributeSet, "tag", tagName.convertToASCIILowercase().utf8().data());
         String id = element->getIdAttribute().string();
         if (!id.isEmpty())
             attributeSet = addToAtkAttributeSet(attributeSet, "html-id", id.utf8().data());
@@ -564,16 +564,17 @@ static AtkRole atkRole(AccessibilityObject* coreObject)
         return ATK_ROLE_SCROLL_BAR;
     case ScrollAreaRole:
         return ATK_ROLE_SCROLL_PANE;
-    case GridRole: // Is this right?
+    case GridRole:
     case TableRole:
         return ATK_ROLE_TABLE;
     case ApplicationRole:
         return ATK_ROLE_APPLICATION;
     case DocumentRegionRole:
-    case GroupRole:
     case RadioGroupRole:
     case TabPanelRole:
         return ATK_ROLE_PANEL;
+    case GroupRole:
+        return coreObject->isStyleFormatGroup() ? ATK_ROLE_SECTION : ATK_ROLE_PANEL;
     case RowHeaderRole:
         return ATK_ROLE_ROW_HEADER;
     case ColumnHeaderRole:
@@ -581,6 +582,7 @@ static AtkRole atkRole(AccessibilityObject* coreObject)
     case CaptionRole:
         return ATK_ROLE_CAPTION;
     case CellRole:
+    case GridCellRole:
         return coreObject->inheritsPresentationalRole() ? ATK_ROLE_SECTION : ATK_ROLE_TABLE_CELL;
     case LinkRole:
     case WebCoreLinkRole:
@@ -1066,7 +1068,8 @@ static GType GetAtkInterfaceTypeFromWAIType(WAIType type)
 static bool roleIsTextType(AccessibilityRole role)
 {
     return role == ParagraphRole || role == HeadingRole || role == DivRole || role == CellRole
-        || role == LinkRole || role == WebCoreLinkRole || role == ListItemRole || role == PreRole;
+        || role == LinkRole || role == WebCoreLinkRole || role == ListItemRole || role == PreRole
+        || role == GridCellRole;
 }
 
 static guint16 getInterfaceMaskFromObject(AccessibilityObject* coreObject)
@@ -1129,7 +1132,7 @@ static guint16 getInterfaceMaskFromObject(AccessibilityObject* coreObject)
         interfaceMask |= 1 << WAIImage;
 
     // Table
-    if (role == TableRole)
+    if (role == TableRole || role == GridRole)
         interfaceMask |= 1 << WAITable;
 
 #if ATK_CHECK_VERSION(2,11,90)
