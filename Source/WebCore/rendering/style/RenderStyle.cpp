@@ -66,7 +66,11 @@ struct SameSizeAsBorderValue {
     int m_restBits;
 };
 
+#if CPU(M68K)
+COMPILE_ASSERT(sizeof(BorderValue) <= sizeof(SameSizeAsBorderValue), BorderValue_should_not_grow);
+#else
 COMPILE_ASSERT(sizeof(BorderValue) == sizeof(SameSizeAsBorderValue), BorderValue_should_not_grow);
+#endif
 
 struct SameSizeAsRenderStyle : public RefCounted<SameSizeAsRenderStyle> {
     void* dataRefs[7];
@@ -81,7 +85,11 @@ struct SameSizeAsRenderStyle : public RefCounted<SameSizeAsRenderStyle> {
     } noninherited_flags;
 };
 
+#if CPU(M68K)
+COMPILE_ASSERT(sizeof(RenderStyle) <= sizeof(SameSizeAsRenderStyle), RenderStyle_should_stay_small);
+#else
 COMPILE_ASSERT(sizeof(RenderStyle) == sizeof(SameSizeAsRenderStyle), RenderStyle_should_stay_small);
+#endif
 
 inline RenderStyle& defaultStyle()
 {
