@@ -1,3 +1,15 @@
+webkit2gtk (1:2.12.2-0) eos; urgency=medium
+
+  * Updated to the new upstream release.
+  * debian/changelog:
+    + Adding the epoch number introduced in 1:2.6.2.
+  * debian/control:
+    + Move libwebkit2gtk-4.0-37-gtk2 from Recommends to Suggests.
+  * Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.cpp:
+    + Patch the mimetype cache to look for the Gstreamer H.264 decoder
+
+ -- Mario Sanchez Prada <mario@endlessm.com>  Fri, 29 Apr 2016 15:43:27 +0100
+
 webkit2gtk (2.12.2-1) unstable; urgency=medium
 
   * New upstream release (Closes: #803104).
