@@ -1,24 +1,50 @@
-webkit2gtk (1:2.10.9-0) eos; urgency=medium
+webkit2gtk (2.12.2-1) unstable; urgency=medium
 
-  * Updated to the new upstream release.
-  * Dropped downstream changes previously applied on top of 1:2.10.6
-    + debian/gir1.2-javascriptcoregtk-4.0.install,
-      debian/gir1.2-webkit2-4.0.install:
-      - Stop putting .typelib files in /usr/lib/girepository-1.0 ()rather than
-        in /usr/lib/<arch>/girepository-1.0, it's no longer needed.
-    + debian/rules:
-      - Don't revert to the old method of creating debug packages, now that
-        we have a new enough version of debhelper (>= 9.20151219).
-      - Don't bother disabling debug symbols for i386, amd64 and armhf since it
-        is not a problem anymore (so we should have proper debug packages now).
-    + debian/control:
-      - Don't revert to the old -dbg packages, now that we have a newer debhelper.
-  * debian/changelog:
-    + Adding the epoch number introduced in 1:2.6.2.
+  * New upstream release (Closes: #803104).
   * debian/control:
-    + Move libwebkit2gtk-4.0-37-gtk2 from Recommends to Suggests.
+    + Update build dependency on gtk+3 to >= 3.20 (see #820309).
+    + Update Standards-Version to 3.9.8 (no changes needed).
 
- -- Mario Sanchez Prada <mario@endlessm.com>  Mon, 18 Apr 2016 22:32:26 +0100
+ -- Alberto Garcia <berto@igalia.com>  Thu, 28 Apr 2016 11:46:35 +0300
+
+webkit2gtk (2.12.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/patches/fix-ftbfs-freebsd.patch,
+    debian/patches/fix-ftbfs-powerpc.patch,
+    debian/patches/fix-ftbfs-hurd.patch:
+    + Remove, all these are upstream now.
+  * debian/patches/fix-ftbfs-alpha.patch,
+    debian/patches/fix-ftbfs-m68k.patch,
+    debian/patches/fix-ftbfs-sparc64.patch,
+    debian/patches/hide-gtk2-plugins.patch
+    + Refresh.
+
+ -- Alberto Garcia <berto@igalia.com>  Thu, 14 Apr 2016 14:07:29 +0300
+
+webkit2gtk (2.12.0-2) unstable; urgency=medium
+
+  * debian/patches/fix-ftbfs-freebsd.patch:
+    + Fix FTBFS in GNU/kFreeBSD.
+  * debian/patches/fix-ftbfs-powerpc.patch:
+    + Fix FTBFS in PowerPC.
+  * debian/patches/fix-ftbfs-hurd.patch:
+    + Fix FTBFS in the Hurd.
+
+ -- Alberto Garcia <berto@igalia.com>  Sun, 03 Apr 2016 15:54:37 +0300
+
+webkit2gtk (2.12.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh all patches.
+  * debian/source/lintian-overrides:
+    + Update source-is-missing overrides.
+  * debian/libwebkit2gtk-4.0-37.symbols:
+    + Update.
+  * debian/copyright:
+    + Remove files that no longer exist.
+
+ -- Alberto Garcia <berto@igalia.com>  Tue, 22 Mar 2016 12:16:08 +0200
 
 webkit2gtk (2.10.9-1) unstable; urgency=medium
 
