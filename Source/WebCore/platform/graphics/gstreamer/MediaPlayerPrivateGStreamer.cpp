@@ -1660,6 +1660,25 @@ void MediaPlayerPrivateGStreamer::loadingFailed(MediaPlayer::NetworkState error)
     m_readyTimerHandler.stop();
 }
 
+static bool gstRegistryHasDecoder(const String& decoder)
+{
+    GList *decoder_factories, *gst_decoders;
+    GstCaps *caps;
+    bool retval;
+
+    decoder_factories = gst_element_factory_list_get_elements (GST_ELEMENT_FACTORY_TYPE_DECODER | GST_ELEMENT_FACTORY_TYPE_MEDIA_VIDEO, GST_RANK_MARGINAL);
+    caps = gst_caps_new_empty_simple (decoder.utf8().data());
+    gst_decoders = gst_element_factory_list_filter (decoder_factories, caps, GST_PAD_SINK, FALSE);
+    gst_caps_unref (caps);
+
+    retval = gst_decoders != NULL;
+
+    gst_plugin_feature_list_free (gst_decoders);
+    gst_plugin_feature_list_free (decoder_factories);
+
+    return retval;
+}
+
 // FIXME: In what sense is this a "cache"?
 static HashSet<String, ASCIICaseInsensitiveHash>& mimeTypeCache()
 {
@@ -1734,7 +1753,6 @@ static HashSet<String, ASCIICaseInsensitiveHash>& mimeTypeCache()
             "video/flv",
             "video/mj2",
             "video/mp2t",
-            "video/mp4",
             "video/mpeg",
             "video/mpegts",
             "video/ogg",
@@ -1759,6 +1777,16 @@ static HashSet<String, ASCIICaseInsensitiveHash>& mimeTypeCache()
         };
         for (auto& type : mimeTypes)
             set.add(type);
+
+        // As we ship different versions of the product with different sets of codecs,
+        // we need to make sure we don't return a MayBeSupported or IsSupported unless
+        // we are completely sure that the needed decoders are registered with the
+        // GStreamer Registry, so we do extra checks before adding the relevant types
+        // to the cache. For now we only worry about H.264, which should fallback to
+        // free codecs if a decoder is not available, but we might add more in the future.
+        if (gstRegistryHasDecoder(String::fromUTF8("video/x-h264")))
+            set.add(String::fromUTF8("video/mp4"));
+
         return set;
     }();
     return cache;
