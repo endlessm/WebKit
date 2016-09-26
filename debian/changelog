@@ -1,3 +1,67 @@
+webkit2gtk (2.14.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/watch:
+    + Stop scanning the 2.13 branch.
+  * debian/gbp.conf:
+    + Update upstream branch name.
+
+ -- Alberto Garcia <berto@igalia.com>  Tue, 20 Sep 2016 15:31:35 +0300
+
+webkit2gtk (2.13.92-1) experimental; urgency=medium
+
+  * New upstream development release.
+  * debian/patches/fix-ftbfs-armel.patch:
+    + Fix FTBFS in Armel.
+
+ -- Alberto Garcia <berto@igalia.com>  Fri, 16 Sep 2016 11:32:19 +0300
+
+webkit2gtk (2.13.91-1) experimental; urgency=medium
+
+  * New upstream development release.
+  * debian/{control,copyright,watch}:
+    + Use https instead of http for webkitgtk.org.
+  * debian/patches/fix-ftbfs-m68k.patch:
+    + Drop this patch, the m68k build has been broken for ages.
+  * debian/patches/fix-ftbfs-alpha.patch,
+    debian/patches/fix-ftbfs-sparc64.patch:
+    + Refresh.
+  * debian/source/lintian-overrides:
+    + Update source-is-missing overrides.
+  * debian/libwebkit2gtk-4.0-37.symbols:
+    + Update.
+  * debian/rules:
+    + Don't use the gold linker in mips/mipsel, see #834147.
+
+ -- Alberto Garcia <berto@igalia.com>  Tue, 13 Sep 2016 11:40:22 +0300
+
+webkit2gtk (2.13.4-1) experimental; urgency=medium
+
+  * New upstream release.
+  * debian/patches/hide-gtk2-plugins.patch:
+    + Dropped, merged upstream.
+  * debian/patches/fix-ftbfs-alpha.patch,
+    debian/patches/fix-ftbfs-m68k.patch,
+    debian/patches/fix-ftbfs-sparc64.patch,
+    debian/patches/install-minibrowser.patch:
+    + Refreshed.
+  * debian/libwebkit2gtk-4.0-37.symbols:
+    + New symbols added, and some optional dom symbols dropped.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 31 Jul 2016 20:46:25 +0200
+
+webkit2gtk (2.12.3-1) unstable; urgency=high
+
+  * New upstream release (Closes: #821228).
+    + This fixes CVE-2016-1856 and CVE-2016-1857.
+  * debian/control:
+    + Now that the GTK+ transition to 3.20 is done, we can revert the
+      build dependency on gtk+3 back to >= 3.10.
+  * debian/rules:
+    + Pass '--with gir' to dh instead of overriding dh_shlibdeps.
+
+ -- Alberto Garcia <berto@igalia.com>  Tue, 24 May 2016 11:17:40 +0200
+
 webkit2gtk (2.12.2-1) unstable; urgency=medium
 
   * New upstream release (Closes: #803104).
