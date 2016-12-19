@@ -278,7 +278,7 @@ static void webkitWebContextConstructed(GObject* object)
     priv->processPool = WebProcessPool::create(configuration);
 
     if (!priv->websiteDataManager)
-        priv->websiteDataManager = webkitWebsiteDataManagerCreate(websiteDataStoreConfigurationForWebProcessPoolConfiguration(configuration));
+        priv->websiteDataManager = adoptGRef(webkitWebsiteDataManagerCreate(websiteDataStoreConfigurationForWebProcessPoolConfiguration(configuration)));
 
     priv->requestManager = priv->processPool->supplement<WebSoupCustomProtocolRequestManager>();
 
@@ -972,11 +972,14 @@ void webkit_web_context_set_preferred_languages(WebKitWebContext* context, const
         return;
 
     Vector<String> languages;
-    for (size_t i = 0; languageList[i]; ++i)
-        languages.append(String::fromUTF8(languageList[i]).convertToASCIILowercase().replace("_", "-"));
-
+    for (size_t i = 0; languageList[i]; ++i) {
+        // Do not propagate the C locale to WebCore.
+        if (!g_ascii_strcasecmp(languageList[i], "C") || !g_ascii_strcasecmp(languageList[i], "POSIX"))
+            languages.append(ASCIILiteral("en-us"));
+        else
+            languages.append(String::fromUTF8(languageList[i]).convertToASCIILowercase().replace("_", "-"));
+    }
     WebCore::overrideUserPreferredLanguages(languages);
-    WebCore::languageDidChange();
 }
 
 /**

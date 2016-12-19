@@ -434,6 +434,11 @@ private:
                 fixEdge<StringUse>(node->child1());
             else if (node->child1()->shouldSpeculateStringOrOther())
                 fixEdge<StringOrOtherUse>(node->child1());
+            else {
+                WatchpointSet* masqueradesAsUndefinedWatchpoint = m_graph.globalObjectFor(node->origin.semantic)->masqueradesAsUndefinedWatchpoint();
+                if (masqueradesAsUndefinedWatchpoint->isStillValid())
+                    m_graph.watchpoints().addLazily(masqueradesAsUndefinedWatchpoint);
+            }
             break;
         }
 
@@ -978,6 +983,11 @@ private:
                 fixEdge<StringUse>(node->child1());
             else if (node->child1()->shouldSpeculateStringOrOther())
                 fixEdge<StringOrOtherUse>(node->child1());
+            else {
+                WatchpointSet* masqueradesAsUndefinedWatchpoint = m_graph.globalObjectFor(node->origin.semantic)->masqueradesAsUndefinedWatchpoint();
+                if (masqueradesAsUndefinedWatchpoint->isStillValid())
+                    m_graph.watchpoints().addLazily(masqueradesAsUndefinedWatchpoint);
+            }
             break;
         }
             
@@ -1082,6 +1092,11 @@ private:
         case NewArrayWithSize: {
             watchHavingABadTime(node);
             fixEdge<Int32Use>(node->child1());
+            break;
+        }
+
+        case NewArrayBuffer: {
+            watchHavingABadTime(node);
             break;
         }
 
@@ -1603,7 +1618,6 @@ private:
         case ForwardVarargs:
         case ProfileControlFlow:
         case NewObject:
-        case NewArrayBuffer:
         case NewRegexp:
         case DeleteById:
         case DeleteByVal:

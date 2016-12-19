@@ -25,7 +25,7 @@
 
 #pragma once
 
-#if PLATFORM(WAYLAND)
+#if PLATFORM(WAYLAND) && USE(EGL)
 
 #include "WebPageProxy.h"
 #include <WebCore/RefPtrCairo.h>
@@ -85,7 +85,7 @@ public:
 
         void attachBuffer(struct wl_resource*);
         void requestFrame(struct wl_resource*);
-        bool commit();
+        void commit();
 
         void setWebPage(WebPageProxy* webPage) { m_webPage = webPage; }
         bool prepareTextureForPainting(unsigned&, WebCore::IntSize&);
@@ -97,6 +97,7 @@ public:
         WeakPtr<Buffer> m_pendingBuffer;
         unsigned m_texture;
         EGLImageKHR m_image;
+        WebCore::IntSize m_imageSize;
         Vector<wl_resource*> m_frameCallbackList;
         WebPageProxy* m_webPage { nullptr };
     };
@@ -126,4 +127,4 @@ private:
 
 } // namespace WebKit
 
-#endif // PLATFORM(WAYLAND)
+#endif // PLATFORM(WAYLAND) && USE(EGL)

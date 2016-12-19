@@ -124,6 +124,8 @@ list(APPEND WebCore_SOURCES
     platform/graphics/cairo/TransformationMatrixCairo.cpp
 
     platform/graphics/egl/GLContextEGL.cpp
+    platform/graphics/egl/GLContextEGLWayland.cpp
+    platform/graphics/egl/GLContextEGLX11.cpp
 
     platform/graphics/freetype/FontCacheFreeType.cpp
     platform/graphics/freetype/FontCustomPlatformDataFreeType.cpp
@@ -147,11 +149,15 @@ list(APPEND WebCore_SOURCES
     platform/graphics/wayland/PlatformDisplayWayland.cpp
 
     platform/graphics/x11/PlatformDisplayX11.cpp
+    platform/graphics/x11/XErrorTrapper.cpp
     platform/graphics/x11/XUniqueResource.cpp
 
+    platform/gtk/DragDataGtk.cpp
     platform/gtk/ErrorsGtk.cpp
     platform/gtk/MIMETypeRegistryGtk.cpp
+    platform/gtk/PasteboardGtk.cpp
     platform/gtk/ScrollAnimatorGtk.cpp
+    platform/gtk/SelectionData.cpp
     platform/gtk/TemporaryLinkStubs.cpp
     platform/gtk/UserAgentGtk.cpp
 
@@ -210,14 +216,11 @@ list(APPEND WebCorePlatformGTK_SOURCES
     platform/graphics/gtk/ImageGtk.cpp
 
     platform/gtk/CursorGtk.cpp
-    platform/gtk/DataObjectGtk.cpp
-    platform/gtk/DragDataGtk.cpp
     platform/gtk/DragImageGtk.cpp
     platform/gtk/GRefPtrGtk.cpp
     platform/gtk/GtkUtilities.cpp
     platform/gtk/GtkVersioning.c
     platform/gtk/LocalizedStringsGtk.cpp
-    platform/gtk/PasteboardGtk.cpp
     platform/gtk/PasteboardHelper.cpp
     platform/gtk/PlatformKeyboardEventGtk.cpp
     platform/gtk/PlatformMouseEventGtk.cpp

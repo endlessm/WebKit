@@ -645,7 +645,7 @@ WebProcessProxy& WebProcessPool::createNewWebProcess()
         parameters.memoryPressureMonitorHandle = MemoryPressureMonitor::singleton().createHandle();
 #endif
 
-#if PLATFORM(WAYLAND)
+#if PLATFORM(WAYLAND) && USE(EGL)
     if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland)
         parameters.waylandCompositorDisplayName = WaylandCompositor::singleton().displayName();
 #endif
@@ -1140,8 +1140,8 @@ void WebProcessPool::terminateDatabaseProcess()
 
 void WebProcessPool::allowSpecificHTTPSCertificateForHost(const WebCertificateInfo* certificate, const String& host)
 {
-    if (m_networkProcess)
-        m_networkProcess->send(Messages::NetworkProcess::AllowSpecificHTTPSCertificateForHost(certificate->certificateInfo(), host), 0);
+    ensureNetworkProcess();
+    m_networkProcess->send(Messages::NetworkProcess::AllowSpecificHTTPSCertificateForHost(certificate->certificateInfo(), host), 0);
 }
 
 void WebProcessPool::updateAutomationCapabilities() const

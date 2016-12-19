@@ -33,10 +33,12 @@
 #include "WebPageProxy.h"
 #include <WebCore/CairoUtilities.h>
 #include <WebCore/PlatformDisplayX11.h>
+#include <WebCore/XErrorTrapper.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/Xdamage.h>
 #include <cairo-xlib.h>
 #include <gdk/gdkx.h>
+#include <gtk/gtk.h>
 #include <wtf/HashMap.h>
 #include <wtf/NeverDestroyed.h>
 
@@ -115,9 +117,15 @@ AcceleratedBackingStoreX11::AcceleratedBackingStoreX11(WebPageProxy& webPage)
 
 AcceleratedBackingStoreX11::~AcceleratedBackingStoreX11()
 {
+    if (!m_surface && !m_damage)
+        return;
+
+    Display* display = downcast<PlatformDisplayX11>(PlatformDisplay::sharedDisplay()).native();
+    XErrorTrapper trapper(display, XErrorTrapper::Policy::Crash, { BadDrawable, BadDamage });
     if (m_damage) {
         XDamageNotifier::singleton().remove(m_damage.get());
         m_damage.reset();
+        XSync(display, False);
     }
 }
 
@@ -127,10 +135,14 @@ void AcceleratedBackingStoreX11::update(const LayerTreeContext& layerTreeContext
     if (m_surface && cairo_xlib_surface_get_drawable(m_surface.get()) == pixmap)
         return;
 
+    Display* display = downcast<PlatformDisplayX11>(PlatformDisplay::sharedDisplay()).native();
+
     if (m_surface) {
+        XErrorTrapper trapper(display, XErrorTrapper::Policy::Crash, { BadDrawable, BadDamage });
         if (m_damage) {
             XDamageNotifier::singleton().remove(m_damage.get());
             m_damage.reset();
+            XSync(display, False);
         }
         m_surface = nullptr;
     }
@@ -146,7 +158,7 @@ void AcceleratedBackingStoreX11::update(const LayerTreeContext& layerTreeContext
     float deviceScaleFactor = m_webPage.deviceScaleFactor();
     size.scale(deviceScaleFactor);
 
-    Display* display = downcast<PlatformDisplayX11>(PlatformDisplay::sharedDisplay()).native();
+    XErrorTrapper trapper(display, XErrorTrapper::Policy::Crash, { BadDrawable, BadDamage });
     ASSERT(downcast<PlatformDisplayX11>(PlatformDisplay::sharedDisplay()).native() == GDK_DISPLAY_XDISPLAY(gdk_display_get_default()));
     GdkVisual* visual = gdk_screen_get_rgba_visual(gdk_screen_get_default());
     if (!visual)
@@ -155,8 +167,10 @@ void AcceleratedBackingStoreX11::update(const LayerTreeContext& layerTreeContext
     cairoSurfaceSetDeviceScale(m_surface.get(), deviceScaleFactor, deviceScaleFactor);
     m_damage = XDamageCreate(display, pixmap, XDamageReportNonEmpty);
     XDamageNotifier::singleton().add(m_damage.get(), [this] {
-        gtk_widget_queue_draw(m_webPage.viewWidget());
+        if (m_webPage.isViewVisible())
+            gtk_widget_queue_draw(m_webPage.viewWidget());
     });
+    XSync(display, False);
 }
 
 bool AcceleratedBackingStoreX11::paint(cairo_t* cr, const IntRect& clipRect)

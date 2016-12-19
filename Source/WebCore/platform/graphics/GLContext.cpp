@@ -84,12 +84,7 @@ std::unique_ptr<GLContext> GLContext::createContextForWindow(GLNativeWindowType 
 #endif
 
 #if USE(GLX)
-#if PLATFORM(WAYLAND) // Building both X11 and Wayland targets
-    XID GLXWindowHandle = reinterpret_cast<XID>(windowHandle);
-#else
-    XID GLXWindowHandle = static_cast<XID>(windowHandle);
-#endif
-    if (auto glxContext = GLContextGLX::createContext(GLXWindowHandle, display))
+    if (auto glxContext = GLContextGLX::createContext(windowHandle, display))
         return WTFMove(glxContext);
 #endif
 #if USE(EGL)
@@ -147,6 +142,48 @@ bool GLContext::makeContextCurrent()
 GLContext* GLContext::current()
 {
     return currentContext()->context();
+}
+
+bool GLContext::isExtensionSupported(const char* extensionList, const char* extension)
+{
+    if (!extensionList)
+        return false;
+
+    ASSERT(extension);
+    int extensionLen = strlen(extension);
+    const char* extensionListPtr = extensionList;
+    while ((extensionListPtr = strstr(extensionListPtr, extension))) {
+        if (extensionListPtr[extensionLen] == ' ' || extensionListPtr[extensionLen] == '\0')
+            return true;
+        extensionListPtr += extensionLen;
+    }
+    return false;
+}
+
+unsigned GLContext::version()
+{
+    if (!m_version) {
+        // Version string can start with the version number (all versions except GLES 1 and 2) or with
+        // "OpenGL". Different fields inside the version string are separated by spaces.
+        String versionString = String(reinterpret_cast<const char*>(::glGetString(GL_VERSION)));
+        Vector<String> versionStringComponents;
+        versionString.split(' ', versionStringComponents);
+
+        Vector<String> versionDigits;
+        if (versionStringComponents[0] == "OpenGL") {
+            // If the version string starts with "OpenGL" it can be GLES 1 or 2. In GLES1 version string starts
+            // with "OpenGL ES-<profile> major.minor" and in GLES2 with "OpenGL ES major.minor". Version is the
+            // third component in both cases.
+            versionStringComponents[2].split('.', versionDigits);
+        } else {
+            // Version is the first component. The version number is always "major.minor" or
+            // "major.minor.release". Ignore the release number.
+            versionStringComponents[0].split('.', versionDigits);
+        }
+
+        m_version = versionDigits[0].toUInt() * 100 + versionDigits[1].toUInt() * 10;
+    }
+    return m_version;
 }
 
 } // namespace WebCore

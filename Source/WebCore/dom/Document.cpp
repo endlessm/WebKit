@@ -485,15 +485,11 @@ Document::Document(Frame* frame, const URL& url, unsigned documentClasses, unsig
     , m_xmlStandalone(StandaloneUnspecified)
     , m_hasXMLDeclaration(false)
     , m_designMode(inherit)
-#if !ASSERT_DISABLED
-    , m_inInvalidateNodeListAndCollectionCaches(false)
-#endif
 #if ENABLE(DASHBOARD_SUPPORT)
     , m_hasAnnotatedRegions(false)
     , m_annotatedRegionsDirty(false)
 #endif
     , m_createRenderers(true)
-    , m_inPageCache(false)
     , m_accessKeyMapValid(false)
     , m_documentClasses(documentClasses)
     , m_isSynthesized(constructionFlags & Synthesized)
@@ -602,7 +598,7 @@ Document::~Document()
     allDocuments().remove(this);
 
     ASSERT(!renderView());
-    ASSERT(!m_inPageCache);
+    ASSERT(m_pageCacheState != InPageCache);
     ASSERT(m_ranges.isEmpty());
     ASSERT(!m_parentTreeScope);
     ASSERT(!m_disabledFieldsetElementsCount);
@@ -679,7 +675,7 @@ void Document::removedLastRef()
         // until after removeDetachedChildren returns, so we protect ourselves.
         incrementReferencingNodeCount();
 
-        prepareForDestruction();
+        RELEASE_ASSERT(!hasLivingRenderTree());
         // We must make sure not to be retaining any of our children through
         // these extra pointers or we will create a reference cycle.
         m_focusedElement = nullptr;
@@ -1650,13 +1646,14 @@ void Document::setTitle(const String& title)
     } else if (!isHTMLDocument() && !isXHTMLDocument() && !isSVGDocument())
         m_titleElement = nullptr;
 
-    // The DOM API has no method of specifying direction, so assume LTR.
-    updateTitle(StringWithDirection(title, LTR));
-
     if (is<HTMLTitleElement>(m_titleElement.get()))
         downcast<HTMLTitleElement>(*m_titleElement).setTextContent(title, ASSERT_NO_EXCEPTION);
     else if (is<SVGTitleElement>(m_titleElement.get()))
         downcast<SVGTitleElement>(*m_titleElement).setTextContent(title, ASSERT_NO_EXCEPTION);
+    else {
+        // The DOM API has no method of specifying direction, so assume LTR.
+        updateTitle(StringWithDirection(title, LTR));
+    }
 }
 
 void Document::updateTitleElement(Element* newTitleElement)
@@ -1824,6 +1821,8 @@ void Document::scheduleForcedStyleRecalc()
 
 void Document::scheduleStyleRecalc()
 {
+    ASSERT(!m_renderView || !m_renderView->inHitTesting());
+
     if (m_styleRecalcTimer.isActive() || inPageCache())
         return;
 
@@ -1924,6 +1923,8 @@ void Document::recalcStyle(Style::Change change)
 
         Style::TreeResolver resolver(*this);
         auto styleUpdate = resolver.resolve(change);
+
+        m_lastStyleUpdateSizeForTesting = styleUpdate ? styleUpdate->size() : 0;
 
         clearNeedsStyleRecalc();
         clearChildNeedsStyleRecalc();
@@ -2248,7 +2249,7 @@ void Document::clearStyleResolver()
 void Document::createRenderTree()
 {
     ASSERT(!renderView());
-    ASSERT(!m_inPageCache);
+    ASSERT(m_pageCacheState != InPageCache);
     ASSERT(!m_axObjectCache || this != &topDocument());
 
     if (m_isNonRenderedPlaceholder)
@@ -2312,7 +2313,7 @@ void Document::disconnectFromFrame()
 void Document::destroyRenderTree()
 {
     ASSERT(hasLivingRenderTree());
-    ASSERT(!m_inPageCache);
+    ASSERT(m_pageCacheState != InPageCache);
 
     TemporaryChange<bool> change(m_renderTreeBeingDestroyed, true);
 
@@ -2429,6 +2430,11 @@ void Document::removeAllEventListeners()
 #endif
     for (Node* node = firstChild(); node; node = NodeTraversal::next(*node))
         node->removeAllEventListeners();
+
+#if ENABLE(TOUCH_EVENTS)
+    m_touchEventTargets = nullptr;
+#endif
+    m_wheelEventTargets = nullptr;
 }
 
 void Document::suspendDeviceMotionAndOrientationUpdates()
@@ -3798,7 +3804,7 @@ bool Document::setFocusedElement(Element* element, FocusDirection direction, Foc
     if (m_focusedElement == newFocusedElement)
         return true;
 
-    if (m_inPageCache)
+    if (inPageCache())
         return false;
 
     bool focusChangeBlocked = false;
@@ -4009,9 +4015,7 @@ void Document::unregisterNodeListForInvalidation(LiveNodeList& list)
         return;
 
     list.setRegisteredForInvalidationAtDocument(false);
-    ASSERT(m_inInvalidateNodeListAndCollectionCaches
-        ? m_listsInvalidatedAtDocument.isEmpty()
-        : m_listsInvalidatedAtDocument.contains(&list));
+    ASSERT(m_listsInvalidatedAtDocument.contains(&list));
     m_listsInvalidatedAtDocument.remove(&list);
 }
 
@@ -4726,17 +4730,18 @@ URL Document::completeURL(const String& url) const
     return completeURL(url, m_baseURL);
 }
 
-void Document::setInPageCache(bool flag)
+void Document::setPageCacheState(PageCacheState state)
 {
-    if (m_inPageCache == flag)
+    if (m_pageCacheState == state)
         return;
 
-    m_inPageCache = flag;
+    m_pageCacheState = state;
 
     FrameView* v = view();
     Page* page = this->page();
 
-    if (flag) {
+    switch (state) {
+    case InPageCache:
         if (v) {
             // FIXME: There is some scrolling related work that needs to happen whenever a page goes into the
             // page cache and similar work that needs to occur when it comes out. This is where we do the work
@@ -4756,9 +4761,13 @@ void Document::setInPageCache(bool flag)
         m_styleRecalcTimer.stop();
 
         clearSharedObjectPool();
-    } else {
+        break;
+    case NotInPageCache:
         if (childNeedsStyleRecalc())
             scheduleStyleRecalc();
+        break;
+    case AboutToEnterPageCache:
+        break;
     }
 }
 
@@ -5077,7 +5086,7 @@ Document& Document::topDocument() const
 {
     // FIXME: This special-casing avoids incorrectly determined top documents during the process
     // of AXObjectCache teardown or notification posting for cached or being-destroyed documents.
-    if (!m_inPageCache && !m_renderTreeBeingDestroyed) {
+    if (!inPageCache() && !m_renderTreeBeingDestroyed) {
         if (!m_frame)
             return const_cast<Document&>(*this);
         // This should always be non-null.

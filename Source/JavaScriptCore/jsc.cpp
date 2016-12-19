@@ -2247,9 +2247,12 @@ static void runInteractive(GlobalObject* globalObject)
             source = source + line;
             source = source + '\n';
             checkSyntax(globalObject->vm(), makeSource(source, interpreterName), error);
-            if (!line[0])
+            if (!line[0]) {
+                free(line);
                 break;
+            }
             add_history(line);
+            free(line);
         } while (error.syntaxErrorType() == ParserError::SyntaxErrorRecoverable);
         
         if (error.isValid()) {
@@ -2506,9 +2509,7 @@ int jscmain(int argc, char** argv)
     CommandLine options(argc, argv);
 
     // Initialize JSC before getting VM.
-#if ENABLE(SAMPLING_REGIONS)
     WTF::initializeMainThread();
-#endif
     JSC::initializeThreading();
 
     VM* vm = &VM::create(LargeHeap).leakRef();
