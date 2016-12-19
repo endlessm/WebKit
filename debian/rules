@@ -24,7 +24,7 @@ ifeq ($(DEB_BUILD_ARCH),alpha)
 	LDFLAGS += -Wl,--no-relax
 endif
 
-ifneq (,$(filter $(DEB_BUILD_ARCH),arm64 mips mipsel))
+ifneq (,$(filter $(DEB_BUILD_ARCH),arm64 kfreebsd-i386 kfreebsd-amd64))
 	EXTRA_CMAKE_ARGUMENTS += -DUSE_LD_GOLD=OFF
 endif
 
@@ -72,6 +72,7 @@ override_dh_auto_configure:
 	   -DCMAKE_C_FLAGS_DEBUG="" \
 	   -DCMAKE_CXX_FLAGS_RELEASE="" \
 	   -DCMAKE_CXX_FLAGS_DEBUG="" \
+	   -DENABLE_MINIBROWSER=ON \
 	   $(EXTRA_CMAKE_ARGUMENTS)
 
 override_dh_strip:
@@ -84,6 +85,9 @@ override_dh_strip:
 override_dh_makeshlibs:
 	dh_makeshlibs -plibwebkit2gtk-4.0-37 -Xinjected-bundle
 	dh_makeshlibs -plibjavascriptcoregtk-4.0-18
+
+override_dh_installchangelogs:
+	dh_installchangelogs $(CURDIR)/NEWS
 
 override_dh_builddeb:
 	DEB_BUILD_OPTIONS="$(filter-out parallel=%,$(DEB_BUILD_OPTIONS))" \

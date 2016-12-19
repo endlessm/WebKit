@@ -1,3 +1,61 @@
+webkit2gtk (2.14.3-1) unstable; urgency=high
+
+  * New upstream release.
+    + The WebKitGTK+ security advisory WSA-2017-0001 published along with
+      this release lists the following security fixes in the latest
+      versions of WebKitGTK+:
+      - CVE-2016-4743, CVE-2016-7587, CVE-2016-7598 (fixed in 2.14.0).
+      - CVE-2016-4692, CVE-2016-7610 (fixed in 2.14.1).
+      - CVE-2016-7611, CVE-2016-7640, CVE-2016-7642, CVE-2016-7646,
+        CVE-2016-7648, CVE-2016-7649 (fixed in 2.14.2)
+      - CVE-2016-7586, CVE-2016-7589, CVE-2016-7592, CVE-2016-7599,
+        CVE-2016-7623, CVE-2016-7632, CVE-2016-7635, CVE-2016-7639,
+        CVE-2016-7645, CVE-2016-7641, CVE-2016-7652, CVE-2016-7654,
+        CVE-2016-7656 (fixed in 2.14.3)
+  * Verify GPG signature of the upstream tarball:
+    + debian/upstream/signing-key.asc:
+      - Add key file.
+    + debian/watch:
+      - Add pgpsigurlmangle option.
+  * debian/rules:
+    + Use the NEWS file as the upstream changelog.
+
+ -- Alberto Garcia <berto@igalia.com>  Wed, 18 Jan 2017 11:28:41 +0200
+
+webkit2gtk (2.14.2-1) unstable; urgency=medium
+
+  * New upstream release (Closes: #839379, #839397).
+  * debian/patches/fix-ftbfs-armel.patch:
+    + The previous update broke this patch, fix it now.
+  * debian/rules:
+    + Don't use the gold linker in kFreeBSD, its version of libxslt is
+      still affected by #801989. We should be able to revert this change
+      once we have libxslt >= 1.1.29.
+    + Enable gold again in mips and mipsel now that #834147 is fixed and
+      we have binutils 2.27-9.
+  * debian/libwebkit2gtk-4.0-37.symbols:
+    + Update.
+
+ -- Alberto Garcia <berto@igalia.com>  Thu, 03 Nov 2016 11:29:40 +0200
+
+webkit2gtk (2.14.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/patches/install-minibrowser.patch:
+    + Drop patch, this has been merged upstream.
+  * debian/rules:
+    + Set -DENABLE_MINIBROWSER=ON.
+  * debian/libjavascriptcoregtk-4.0-bin.install:
+    + Install the jsc executable in /usr/bin.
+  * debian/patches/fix-ftbfs-armel.patch:
+    + Add output message telling whether we need to build Atomics.cpp.
+  * debian/control:
+    + Update Vcs-* links (thanks, Jeremy Bicha) (Closes: #840483).
+  * debian/compat:
+    + Set debhelper compatibility level to 9.
+
+ -- Alberto Garcia <berto@igalia.com>  Wed, 12 Oct 2016 14:09:27 +0300
+
 webkit2gtk (2.14.0-1) unstable; urgency=medium
 
   * New upstream release.
