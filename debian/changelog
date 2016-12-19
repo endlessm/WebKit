@@ -1,3 +1,16 @@
+webkit2gtk (1:2.14.3-1endless1) eos; urgency=medium
+
+  * Updated to the new upstream release
+  * debian/changelog:
+    + Adding the epoch number introduced in 1:2.6.2.
+  * debian/control:
+    + Move libwebkit2gtk-4.0-37-gtk2 from Recommends to Suggests.
+  * debian/patches:
+    + Dropped from here and applied directly on the master branch
+  https://phabricator.endlessm.com/T13687
+
+ -- Michael Catanzaro <mcatanzaro@igalia.com>  Tue, 24 Jan 2017 21:11:27 -0600
+
 webkit2gtk (2.14.3-1) unstable; urgency=high
 
   * New upstream release.
