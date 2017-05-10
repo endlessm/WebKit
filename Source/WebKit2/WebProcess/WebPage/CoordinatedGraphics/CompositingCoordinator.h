@@ -79,6 +79,7 @@ public:
 
     void createRootLayer(const WebCore::IntSize&);
     WebCore::GraphicsLayer* rootLayer() const { return m_rootLayer.get(); }
+    WebCore::GraphicsLayer* rootCompositingLayer() const { return m_rootCompositingLayer; }
     WebCore::CoordinatedGraphicsLayer* mainContentsLayer();
 
     bool flushPendingLayerChanges();
@@ -86,9 +87,7 @@ public:
 
     void syncDisplayState();
 
-#if ENABLE(REQUEST_ANIMATION_FRAME)
     double nextAnimationServiceTime() const;
-#endif
 
 private:
     enum ReleaseAtlasPolicy {
@@ -161,9 +160,7 @@ private:
     WebCore::FloatRect m_visibleContentsRect;
     WebCore::Timer m_releaseInactiveAtlasesTimer;
 
-#if ENABLE(REQUEST_ANIMATION_FRAME)
     double m_lastAnimationServiceTime { 0 };
-#endif
 };
 
 }
