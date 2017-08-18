@@ -155,12 +155,6 @@
 #define WTF_CPU_BIG_ENDIAN 1
 #endif
 
-/* CPU(SPARC64) - sparc64 */
-#if defined(__sparc__) && defined(__sparc_v9__)
-#define WTF_CPU_SPARC64 1
-#define WTF_CPU_BIG_ENDIAN 1
-#endif
-
 /* CPU(X86) - i386 / x86 32-bit */
 #if   defined(__i386__) \
     || defined(i386)     \
@@ -354,7 +348,7 @@
 
 #endif /* ARM */
 
-#if CPU(ARM) || CPU(MIPS) || CPU(SH4) || CPU(SPARC64) || CPU(ALPHA)
+#if CPU(ARM) || CPU(MIPS) || CPU(SH4)
 #define WTF_CPU_NEEDS_ALIGNED_ACCESS 1
 #endif
 
@@ -684,7 +678,6 @@
     || CPU(ALPHA) \
     || CPU(ARM64) \
     || CPU(S390X) \
-    || CPU(SPARC64) \
     || CPU(MIPS64) \
     || CPU(PPC64) \
     || CPU(PPC64LE)
