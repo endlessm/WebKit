@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 1999 Lars Knoll (knoll@kde.org)
  *           (C) 1999 Antti Koivisto (koivisto@kde.org)
- * Copyright (C) 2003, 2008, 2010 Apple Inc. All rights reserved.
+ * Copyright (C) 2003-2017 Apple Inc. All rights reserved.
  * Copyright (C) 2011 Google Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
@@ -80,6 +80,7 @@ private:
     void clearSheet();
 
     InsertionNotificationRequest insertedInto(ContainerNode&) final;
+    void finishedInsertingSubtree() final;
     void removedFrom(ContainerNode&) final;
 
     void initializeStyleSheet(Ref<StyleSheetContents>&&, const CachedCSSStyleSheet&);
@@ -132,6 +133,7 @@ private:
     bool m_createdByParser;
     bool m_firedLoad;
     bool m_loadedResource;
+    bool m_isHandlingBeforeLoad { false };
 
     PendingSheetType m_pendingSheetType;
 
