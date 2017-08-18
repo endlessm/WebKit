@@ -1834,8 +1834,9 @@ void Document::recalcStyle(Style::Change change)
     if (updatedCompositingLayers && !frameView.needsLayout())
         frameView.viewportContentsChanged();
 
+    // Usually this is handled by post-layout.
     if (!frameView.needsLayout())
-        frameView.frame().selection().updateAppearanceAfterLayout();
+        frameView.frame().selection().scheduleAppearanceUpdateAfterStyleChange();
 
     // As a result of the style recalculation, the currently hovered element might have been
     // detached (for example, by setting display:none in the :hover style), schedule another mouseMove event
@@ -1845,6 +1846,8 @@ void Document::recalcStyle(Style::Change change)
 
     if (m_gotoAnchorNeededAfterStylesheetsLoad && !styleScope().hasPendingSheets())
         frameView.scrollToFragment(m_url);
+
+    // FIXME: Ideally we would ASSERT(!needsStyleRecalc()) here but we have some cases where it is not true.
 }
 
 bool Document::needsStyleRecalc() const
@@ -5242,15 +5245,31 @@ void Document::initSecurityContext()
     setSecurityOriginPolicy(ownerFrame->document()->securityOriginPolicy());
 }
 
+bool Document::shouldInheritContentSecurityPolicyFromOwner() const
+{
+    ASSERT(m_frame);
+    if (shouldInheritSecurityOriginFromOwner(m_url))
+        return true;
+    if (!isPluginDocument())
+        return false;
+    if (m_frame->tree().parent())
+        return true;
+    Frame* openerFrame = m_frame->loader().opener();
+    if (!openerFrame)
+        return false;
+    return openerFrame->document()->securityOrigin().canAccess(securityOrigin());
+}
+
 void Document::initContentSecurityPolicy()
 {
+    // 1. Inherit Upgrade Insecure Requests
     Frame* parentFrame = m_frame->tree().parent();
     if (parentFrame)
         contentSecurityPolicy()->copyUpgradeInsecureRequestStateFrom(*parentFrame->document()->contentSecurityPolicy());
 
-    if (!shouldInheritSecurityOriginFromOwner(m_url) && !isPluginDocument())
+    // 2. Inherit Content Security Policy
+    if (!shouldInheritContentSecurityPolicyFromOwner())
         return;
-
     Frame* ownerFrame = parentFrame;
     if (!ownerFrame)
         ownerFrame = m_frame->loader().opener();
