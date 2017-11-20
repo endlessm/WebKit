@@ -119,6 +119,7 @@ list(APPEND WebCore_SOURCES
     platform/network/soup/AuthenticationChallengeSoup.cpp
     platform/network/soup/CertificateInfo.cpp
     platform/network/soup/CookieJarSoup.cpp
+    platform/network/soup/CookieSoup.cpp
     platform/network/soup/CookieStorageSoup.cpp
     platform/network/soup/CredentialStorageSoup.cpp
     platform/network/soup/DNSSoup.cpp
