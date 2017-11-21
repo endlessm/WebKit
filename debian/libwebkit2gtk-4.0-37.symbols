@@ -90,6 +90,12 @@ libwebkit2gtk-4.0.so.37 libwebkit2gtk-4.0-37 #MINVER#
  webkit_context_menu_remove_all@Base 2.5.3
  webkit_context_menu_set_user_data@Base 2.8.1
  webkit_cookie_accept_policy_get_type@Base 2.5.3
+ webkit_cookie_manager_add_cookie@Base 2.18.3
+ webkit_cookie_manager_add_cookie_finish@Base 2.18.3
+ webkit_cookie_manager_get_cookies@Base 2.18.3
+ webkit_cookie_manager_get_cookies_finish@Base 2.18.3
+ webkit_cookie_manager_delete_cookie@Base 2.18.3
+ webkit_cookie_manager_delete_cookie_finish@Base 2.18.3
  webkit_cookie_manager_delete_all_cookies@Base 2.5.3
  webkit_cookie_manager_delete_cookies_for_domain@Base 2.5.3
  webkit_cookie_manager_get_accept_policy@Base 2.5.3
