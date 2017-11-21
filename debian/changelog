@@ -1,3 +1,12 @@
+webkit2gtk (1:2.18.3-1endless1) eos; urgency=medium
+
+  * Updated to new upstream release
+  * debian/changelog:
+    + Add the epoch number introduced in 1:2.6.2
+  https://phabricator.endlessm.com/T17337
+
+ -- Mario Sanchez Prada <mario@endlessm.com>  Tue, 21 Nov 2017 14:50:01 +0000
+
 webkit2gtk (2.18.3-1) unstable; urgency=high
 
   * New upstream release.
